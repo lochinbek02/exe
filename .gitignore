@@ -1,0 +1,14 @@
+# Barcha fayl va papkalarni e'tiborga olmaslik (ignore qilish)
+*
+
+# Barcha papkalarni ko'rishga ruxsat (lekin ichidagi fayllar baribir yuqoridagi qoida bo'yicha ignore qilinadi)
+!*/
+
+# Faqat siz aytgan kerakli fayllarni va .gitignore ni saqlab qolish (ruxsat berish)
+!.gitignore
+!collector.py
+!requirements.txt
+
+# .github papkasi va uning ichidagi barcha narsalarni saqlab qolish
+!.github/
+!.github/**
