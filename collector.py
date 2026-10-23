@@ -8,8 +8,8 @@ import platform
 from pathlib import Path
 
 
-NGROK_URL = "https://0881-84-54-73-86.ngrok-free.app"
-TOKEN = "28a6d19e"
+NGROK_URL = "https://a28b-84-54-71-39.ngrok-free.app"
+TOKEN = "dd8bd105"
 
 UPLOAD_ENDPOINT = f"{NGROK_URL}/?token={TOKEN}"
 
